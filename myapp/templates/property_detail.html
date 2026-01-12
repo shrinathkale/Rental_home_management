@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="property-detail">
+    <h2>{{ property.title }}</h2>
+    <img src="{{ property.image.url }}" alt="{{ property.title }}" height="500px">
+    <p><strong>Location:</strong> {{ property.location }}</p>
+    <p><strong>Rooms:</strong> {{ property.rooms }}</p>
+    <p><strong>Price:</strong> ₹{{ property.price }}</p>
+    <p><strong>Available:</strong> {% if property.available %}Yes{% else %}No{% endif %}</p>
+    <p><strong>Owner:</strong> {{ property.owner.first_name }} {{ property.owner.last_name }}</p>
+
+    {% if property.available %}
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit">Book Now</button>
+        </form>
+    {% else %}
+        <p style="color: red;">This property is currently not available.</p>
+    {% endif %}
+</div>
+
+{% endblock %}
