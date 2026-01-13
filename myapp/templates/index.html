@@ -1,10 +1,38 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="hero">
-    <h1>Find Homes in Pune</h1>
-    <p>Rent or Buy Smartly</p>
+
+<div class="container">
+<h2>Available Properties</h2>
+
+<form method="get" class="search-form">
+    <div class="search-container">
+        <input type="text" name="location" placeholder="Location" value="{{ request.GET.location }}">
+        <input type="number" name="rooms" placeholder="Rooms" value="{{ request.GET.rooms }}">
+        <input type="number" name="price" placeholder="Max Price" value="{{ request.GET.price }}">
+        <button type="submit">Search</button>
+    </div>
+</form>
+
+<div class="property-grid">
+{% if properties %}
+    {% for p in properties %}
+        <div class="card">
+            {% if p.image %}
+                <img src="{{ p.image.url }}" alt="{{ p.title }}">
+            {% else %}
+                <div style="width: 100%; height: 200px; background-color: #ddd; display: flex; align-items: center; justify-content: center; color: #999;">No Image</div>
+            {% endif %}
+            <h3>{{ p.title }}</h3>
+            <p><strong>{{ p.location }}</strong></p>
+            <p>Rooms: {{ p.rooms }}</p>
+            <p style="color: #27ae60; font-weight: bold;">₹ {{ p.price }}</p>
+            <p>{% if p.available %}<span style="color: green;">Available</span>{% else %}<span style="color: red;">Not Available</span>{% endif %}</p>
+            <a href="/property/{{ p.id }}/">View Details</a>
+        </div>
+    {% endfor %}
+{% else %}
+    <p style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #999;">No properties found. Try adjusting your search filters.</p>
+{% endif %}
 </div>
-<div class="image">
-    <img src="/static/images/image.png" alt="">
 </div>
 {% endblock %}

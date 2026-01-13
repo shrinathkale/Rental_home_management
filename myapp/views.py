@@ -6,9 +6,6 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.contrib import messages
 
-def home(request):
-    return render(request, 'index.html')
-
 def about(request):
     return render(request, 'about.html')
 
@@ -33,7 +30,7 @@ def property_list(request):
         except ValueError:
             pass
 
-    return render(request, 'property_list.html', {'properties': properties})
+    return render(request, 'index.html', {'properties': properties})
 
 def property_detail(request, id):
     property = get_object_or_404(Property, id=id)
