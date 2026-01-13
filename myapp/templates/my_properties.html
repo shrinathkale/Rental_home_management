@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>My Properties</h2>
+        <a href="/add-property/" class="btn btn-success">+ Add New Property</a>
+    </div>
+
+    {% if properties %}
+        <div class="row">
+            {% for property in properties %}
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow h-100">
+                        <img src="{{ property.main_image.url }}" alt="{{ property.title }}" 
+                             class="card-img-top" style="height: 250px; object-fit: cover;">
+                        
+                        <div class="card-body">
+                            <h5 class="card-title">{{ property.title }}</h5>
+                            
+                            <p class="text-muted">
+                                <strong>Location:</strong> {{ property.city }}, {{ property.area_location }}
+                            </p>
+
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <strong>Monthly Rent:</strong>
+                                    <span class="text-primary">₹{{ property.monthly_rent }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between small">
+                                    <span>Room Type:</span>
+                                    <span>{{ property.get_room_type_display }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between small">
+                                    <span>Capacity:</span>
+                                    <span>{{ property.max_people }} people</span>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <strong>Status:</strong>
+                                {% if property.available %}
+                                    <span class="badge bg-success">Available</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Not Available</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <strong>Booking Requests:</strong>
+                                <span class="badge bg-info">
+                                    {{ property.booking_requests.count }}
+                                </span>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <a href="/property/{{ property.id }}/" class="btn btn-sm btn-primary flex-fill">
+                                    View
+                                </a>
+                                <a href="/edit-property/{{ property.id }}/" class="btn btn-sm btn-warning flex-fill">
+                                    Edit
+                                </a>
+                                <a href="/booking-requests/?property={{ property.id }}" class="btn btn-sm btn-info flex-fill">
+                                    Requests
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <p class="mb-0">You haven't added any properties yet. <a href="/add-property/">Add your first property</a> now!</p>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

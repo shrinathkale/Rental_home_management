@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-body">
+                <h2 class="card-title mb-4">Respond to Booking Request</h2>
+
+                <!-- Tenant Information -->
+                <div class="alert alert-light border">
+                    <h5 class="mb-3">Tenant Details</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p>
+                                <strong>Name:</strong><br>
+                                {{ booking.tenant.get_full_name|default:booking.tenant.username }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p>
+                                <strong>Email:</strong><br>
+                                {{ booking.tenant.email }}
+                            </p>
+                        </div>
+                        {% if booking.tenant.profile.phone %}
+                            <div class="col-md-6">
+                                <p>
+                                    <strong>Phone:</strong><br>
+                                    {{ booking.tenant.profile.phone }}
+                                </p>
+                            </div>
+                        {% endif %}
+                        {% if booking.tenant.profile.village %}
+                            <div class="col-md-6">
+                                <p>
+                                    <strong>Location:</strong><br>
+                                    {{ booking.tenant.profile.village }}, {{ booking.tenant.profile.subdistrict }}, {{ booking.tenant.profile.district }}
+                                </p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Property Information -->
+                <div class="alert alert-light border">
+                    <h5 class="mb-3">Property Details</h5>
+                    <p>
+                        <strong>{{ booking.property.title }}</strong><br>
+                        {{ booking.property.full_address }}<br>
+                        <strong>Monthly Rent:</strong> ₹{{ booking.property.monthly_rent }}
+                    </p>
+                </div>
+
+                <!-- Tenant's Message -->
+                {% if booking.message %}
+                    <div class="alert alert-light border">
+                        <h5 class="mb-3">Tenant's Message</h5>
+                        <p>{{ booking.message }}</p>
+                    </div>
+                {% endif %}
+
+                <!-- Response Form -->
+                {% if booking.status == 'pending' %}
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <h5 class="mb-3">Your Response</h5>
+
+                        <div class="mb-3">
+                            <label for="status">Decision:</label>
+                            {{ form.status }}
+                            {% if form.status.errors %}<div class="text-danger">{{ form.status.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="owner_response">Message to Tenant (optional):</label>
+                            {{ form.owner_response }}
+                            {% if form.owner_response.errors %}<div class="text-danger">{{ form.owner_response.errors }}</div>{% endif %}
+                            <small class="text-muted d-block">
+                                You can send a personalized message to the tenant explaining your decision.
+                            </small>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg flex-fill">
+                                Send Response
+                            </button>
+                            <a href="/booking-requests/" class="btn btn-secondary btn-lg flex-fill">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                {% else %}
+                    <!-- Display Previous Response -->
+                    <div class="alert alert-light border">
+                        <h5 class="mb-3">Decision</h5>
+                        <p>
+                            <strong>Status:</strong>
+                            <span class="badge bg-{% if booking.status == 'accepted' %}success{% elif booking.status == 'rejected' %}danger{% else %}secondary{% endif %}">
+                                {{ booking.get_status_display|upper }}
+                            </span>
+                        </p>
+                        {% if booking.owner_response %}
+                            <p class="mb-0">
+                                <strong>Your Message:</strong><br>
+                                {{ booking.owner_response }}
+                            </p>
+                        {% endif %}
+                    </div>
+                    <a href="/booking-requests/" class="btn btn-secondary btn-lg w-100">
+                        Back to Requests
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

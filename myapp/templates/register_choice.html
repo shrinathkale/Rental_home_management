@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-body text-center">
+                <h2 class="card-title mb-4">Register as:</h2>
+                
+                <div class="d-grid gap-3">
+                    <a href="/register/user/" class="btn btn-primary btn-lg">
+                        <i class="bi bi-person"></i> Register as Tenant
+                    </a>
+                    <a href="/register/homeowner/" class="btn btn-success btn-lg">
+                        <i class="bi bi-house"></i> Register as Home Owner
+                    </a>
+                </div>
+                
+                <hr class="my-4">
+                <p class="text-muted">
+                    Already have an account? <a href="/login/">Login here</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

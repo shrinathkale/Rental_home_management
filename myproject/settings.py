@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-ym_^w*2ris4i86vf@(c=14thsvzzx-91!@zt18f80=jg*&^j-s
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -132,3 +132,21 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Gmail SMTP server
+EMAIL_PORT = 587  # TLS port
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'kale.shrinath05@gmail.com'  # Your Gmail address
+# IMPORTANT: Use Gmail App Password (16 characters from https://myaccount.google.com/apppasswords)
+# NOT your regular Gmail password. You must enable 2FA first.
+EMAIL_HOST_PASSWORD = 'kgrioqdekgndeawa'  # Replace with your 16-character Gmail App Password
+DEFAULT_FROM_EMAIL = 'kale.shrinath05@gmail.com'
+DEFAULT_FROM_EMAIL_NAME = 'rental_home'
+
+# For testing without sending real emails, use console backend:
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# For development, you can use console backend to print emails to console:
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

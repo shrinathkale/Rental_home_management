@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="mt-4">
+    <h2 class="mb-4">Booking Requests</h2>
+
+    {% if booking_requests %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Property</th>
+                        <th>Tenant</th>
+                        <th>Requested On</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in booking_requests %}
+                        <tr>
+                            <td>
+                                <strong><a href="/property/{{ booking.property.id }}/" class="text-decoration-none">
+                                    {{ booking.property.title }}
+                                </a></strong>
+                                <br>
+                                <small class="text-muted">{{ booking.property.city }}, {{ booking.property.area_location }}</small>
+                            </td>
+                            <td>
+                                {{ booking.tenant.get_full_name|default:booking.tenant.username }}
+                                <br>
+                                <small class="text-muted">{{ booking.tenant.email }}</small>
+                                {% if booking.tenant.profile.phone %}
+                                    <br>
+                                    <small class="text-muted">{{ booking.tenant.profile.phone }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ booking.requested_at|date:"d M, Y H:i" }}
+                            </td>
+                            <td>
+                                <span class="badge bg-{% if booking.status == 'accepted' %}success{% elif booking.status == 'rejected' %}danger{% elif booking.status == 'pending' %}warning{% else %}secondary{% endif %}">
+                                    {{ booking.get_status_display|upper }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="/respond-booking/{{ booking.id }}/" class="btn btn-sm btn-primary">
+                                    {% if booking.status == 'pending' %}
+                                        Respond
+                                    {% else %}
+                                        View
+                                    {% endif %}
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <p class="mb-0">You don't have any booking requests yet.</p>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}
