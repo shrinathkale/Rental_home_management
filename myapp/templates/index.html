@@ -26,6 +26,10 @@
                            value="{{ request.GET.price }}">
                 </div>
                 <div class="col-md-3">
+                    <input type="text" name="nearby_college_office" class="form-control search-filter" placeholder="College/Office" 
+                           value="{{ request.GET.nearby_college_office }}">
+                </div>
+                <div class="col-md-3">
                     <select name="availability" class="form-select search-filter">
                         <option value="available" {% if availability == 'available' %}selected{% endif %}>Available</option>
                         <option value="unavailable" {% if availability == 'unavailable' %}selected{% endif %}>Unavailable</option>

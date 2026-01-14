@@ -150,3 +150,7 @@ DEFAULT_FROM_EMAIL_NAME = 'rental_home'
 
 # For development, you can use console backend to print emails to console:
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Google Maps API Configuration
+GOOGLE_MAPS_API_KEY = 'AIzaSyCGskhxS6LmCgw9BLs06Nh2ykg9lPlO5Wk'  # Replace with your actual API key from Google Cloud Console
+# Get free API key: https://console.cloud.google.com/

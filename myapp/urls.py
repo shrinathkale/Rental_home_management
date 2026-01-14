@@ -8,6 +8,7 @@ urlpatterns = [
     path('add-property/', views.add_property, name='add_property'),
     path('edit-property/<int:id>/', views.edit_property, name='edit_property'),
     path('my-properties/', views.my_properties, name='my_properties'),
+    path('toggle-property-availability/<int:id>/', views.toggle_property_availability, name='toggle_property_availability'),
     
     # Booking
     path('my-bookings/', views.my_bookings, name='my_bookings'),

@@ -90,6 +90,10 @@ class Property(models.Model):
     # Amenities (comma-separated or use through model)
     amenities = models.TextField(blank=True, null=True)  # JSON format
     
+    # Location Coordinates (for Google Maps)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0, help_text="Property latitude")
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0, help_text="Property longitude")
+    
     # Nearby Places
     nearby_college_office = models.CharField(max_length=200, blank=True, null=True)
     nearby_mall = models.CharField(max_length=200, blank=True, null=True)

@@ -45,8 +45,12 @@ def property_list(request):
         except ValueError:
             pass
     
+    nearby_college_office = request.GET.get('nearby_college_office')
+    if nearby_college_office:
+        properties = properties.filter(nearby_college_office__icontains=nearby_college_office)
+    
     # Availability filter
-    availability = request.GET.get('availability', 'available')
+    availability = request.GET.get('availability', 'all')
     if availability == 'available':
         properties = properties.filter(available=True)
     elif availability == 'unavailable':
@@ -108,6 +112,7 @@ def property_detail(request, id):
         'property': property_obj,
         'form': form,
         'booking_request': booking_request,
+        'GOOGLE_MAPS_API_KEY': settings.GOOGLE_MAPS_API_KEY,
     }
     return render(request, 'property_detail.html', context)
 
@@ -145,7 +150,7 @@ def add_property(request):
     else:
         form = PropertyForm()
     
-    return render(request, 'add_property.html', {'form': form})
+    return render(request, 'add_property.html', {'form': form, 'GOOGLE_MAPS_API_KEY': settings.GOOGLE_MAPS_API_KEY})
 
 
 @login_required(login_url='login')
@@ -183,6 +188,33 @@ def my_properties(request):
     
     properties = request.user.properties.all()
     return render(request, 'my_properties.html', {'properties': properties})
+
+
+@login_required(login_url='login')
+@require_http_methods(["POST"])
+def toggle_property_availability(request, id):
+    """Toggle property availability status (Home owner only)"""
+    property_obj = get_object_or_404(Property, id=id)
+    
+    # Check if user is the owner
+    if property_obj.owner != request.user:
+        return JsonResponse({'success': False, 'message': 'You do not have permission to modify this property.'}, status=403)
+    
+    try:
+        data = json.loads(request.body)
+        action = data.get('action')
+        
+        if action == 'make-available':
+            property_obj.available = True
+        elif action == 'make-unavailable':
+            property_obj.available = False
+        else:
+            return JsonResponse({'success': False, 'message': 'Invalid action.'})
+        
+        property_obj.save()
+        return JsonResponse({'success': True, 'message': f'Property is now {("available" if property_obj.available else "unavailable")}.'})
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid request format.'}, status=400)
 
 
 @login_required(login_url='login')

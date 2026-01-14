@@ -206,6 +206,23 @@
                     <p class="mt-3">{{ property.description }}</p>
                 </section>
 
+                <!-- Location Map (Visible only after booking acceptance) -->
+                {% if booking_request and booking_request.status == 'accepted' and property.latitude and property.longitude %}
+                    <section class="mt-4">
+                        <h4 class="border-bottom pb-2">📍 Property Location Map</h4>
+                        <div id="property-map-detail" style="width: 100%; height: 400px; margin-top: 20px; border: 2px solid #ddd; border-radius: 5px;"></div>
+                        <p class="text-muted small mt-2">
+                            <strong>Coordinates:</strong> Latitude: {{ property.latitude }}, Longitude: {{ property.longitude }}
+                        </p>
+                    </section>
+                {% elif booking_request and booking_request.status == 'accepted' %}
+                    <section class="mt-4">
+                        <div class="alert alert-info">
+                            <strong>ℹ Map information:</strong> The property owner has not provided location coordinates yet. Please contact them for directions.
+                        </div>
+                    </section>
+                {% endif %}
+
                 <!-- Owner Information -->
                 <section class="mt-4">
                     <h4 class="border-bottom pb-2">Property Owner</h4>
@@ -332,6 +349,58 @@
         </div>
     </div>
 </div>
+
+<!-- Google Maps API Script (for property detail map) -->
+<script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}"></script>
+<script>
+    // Initialize map only if booking is accepted and coordinates exist
+    const lat = {{ property.latitude|default:"null" }};
+    const lng = {{ property.longitude|default:"null" }};
+    
+    if (lat && lng && lat !== 0 && lng !== 0) {
+        window.addEventListener('load', function() {
+            initDetailMap();
+        });
+
+        function initDetailMap() {
+            const mapElement = document.getElementById('property-map-detail');
+            
+            if (!mapElement) {
+                return; // Map element not present (user not accepted booking)
+            }
+
+            const propertyLocation = { lat: lat, lng: lng };
+
+            const map = new google.maps.Map(mapElement, {
+                zoom: 16,
+                center: propertyLocation,
+                mapTypeControl: true,
+                fullscreenControl: true,
+                streetViewControl: true
+            });
+
+            // Add marker
+            const marker = new google.maps.Marker({
+                position: propertyLocation,
+                map: map,
+                title: '{{ property.title }}',
+                icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+            });
+
+            // Add info window
+            const infowindow = new google.maps.InfoWindow({
+                content: '<div style="font-size: 14px;"><strong>{{ property.title }}</strong><br>{{ property.full_address }}<br>📍 Latitude: ' + lat.toFixed(6) + '<br>Longitude: ' + lng.toFixed(6) + '</div>'
+            });
+
+            marker.addListener('click', function() {
+                infowindow.open(map, marker);
+            });
+
+            // Open info window by default
+            infowindow.open(map, marker);
+        }
+    }
+</script>
 
 {% endblock %}
 
