@@ -291,6 +291,18 @@
                     {% endif %}
                 </div>
 
+                <!-- Get Directions Button -->
+                {% if property.latitude and property.longitude and property.latitude != 0 and property.longitude != 0 %}
+                    <div class="mb-4">
+                        <button class="btn btn-success w-100 btn-lg" id="get-directions-btn" onclick="getDirections()">
+                            <i class="bi bi-geo-alt-fill"></i> Get Directions
+                        </button>
+                        <small class="text-muted d-block mt-2">
+                            Click to open directions to this property in Google Maps
+                        </small>
+                    </div>
+                {% endif %}
+
                 <!-- Booking Form -->
                 {% if not booking_request or booking_request.status == 'rejected' or booking_request.status == 'cancelled' %}
                     {% if user.is_authenticated %}
@@ -353,11 +365,14 @@
 <!-- Google Maps API Script (for property detail map) -->
 <script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}"></script>
 <script>
-    // Initialize map only if booking is accepted and coordinates exist
-    const lat = {{ property.latitude|default:"null" }};
-    const lng = {{ property.longitude|default:"null" }};
+    // Property coordinates
+    const propertyLat = {{ property.latitude|default:"null" }};
+    const propertyLng = {{ property.longitude|default:"null" }};
+    const propertyAddress = "{{ property.full_address|escapejs }}";
+    const propertyTitle = "{{ property.title|escapejs }}";
     
-    if (lat && lng && lat !== 0 && lng !== 0) {
+    // Initialize map only if booking is accepted and coordinates exist
+    if (propertyLat && propertyLng && propertyLat !== 0 && propertyLng !== 0) {
         window.addEventListener('load', function() {
             initDetailMap();
         });
@@ -369,7 +384,7 @@
                 return; // Map element not present (user not accepted booking)
             }
 
-            const propertyLocation = { lat: lat, lng: lng };
+            const propertyLocation = { lat: propertyLat, lng: propertyLng };
 
             const map = new google.maps.Map(mapElement, {
                 zoom: 16,
@@ -383,13 +398,13 @@
             const marker = new google.maps.Marker({
                 position: propertyLocation,
                 map: map,
-                title: '{{ property.title }}',
+                title: propertyTitle,
                 icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
             });
 
             // Add info window
             const infowindow = new google.maps.InfoWindow({
-                content: '<div style="font-size: 14px;"><strong>{{ property.title }}</strong><br>{{ property.full_address }}<br>📍 Latitude: ' + lat.toFixed(6) + '<br>Longitude: ' + lng.toFixed(6) + '</div>'
+                content: '<div style="font-size: 14px;"><strong>' + propertyTitle + '</strong><br>' + propertyAddress + '<br>📍 Latitude: ' + propertyLat.toFixed(6) + '<br>Longitude: ' + propertyLng.toFixed(6) + '</div>'
             });
 
             marker.addListener('click', function() {
@@ -399,6 +414,147 @@
             // Open info window by default
             infowindow.open(map, marker);
         }
+    }
+
+    // Function to get directions to the property
+    function getDirections() {
+        // Check if property has valid coordinates
+        if (!propertyLat || !propertyLng || propertyLat === 0 || propertyLng === 0) {
+            alert('⚠ Property location coordinates are not available.');
+            return;
+        }
+
+        // Check if geolocation is available
+        if (!navigator.geolocation) {
+            // Fallback: Show input modal for manual location entry
+            showManualLocationModal();
+            return;
+        }
+
+        // Show loading indicator
+        const btn = document.getElementById('get-directions-btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Getting your location...';
+        btn.disabled = true;
+
+        // Get user's current location
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const userLat = position.coords.latitude;
+                const userLng = position.coords.longitude;
+                
+                // Open Google Maps with directions
+                openGoogleMapsDirections(userLat, userLng);
+                
+                // Reset button
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            },
+            function(error) {
+                // If geolocation fails, show manual entry option
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+                if (error.code === error.PERMISSION_DENIED) {
+                    showManualLocationModal();
+                } else {
+                    alert('⚠ Unable to get your location. Please allow location access or enter it manually.');
+                    showManualLocationModal();
+                }
+            }
+        );
+    }
+
+    // Function to open Google Maps with directions
+    function openGoogleMapsDirections(userLat, userLng) {
+        // Google Maps Directions URL format
+        const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLng}&destination=${propertyLat},${propertyLng}&travelmode=driving`;
+        
+        // Open in new tab
+        window.open(mapsUrl, '_blank');
+    }
+
+    // Function to show manual location input modal
+    function showManualLocationModal() {
+        const modal = `
+            <div class="modal fade" id="locationModal" tabindex="-1" role="dialog" aria-labelledby="locationModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="locationModalLabel">Enter Your Location</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="text-muted mb-3">We couldn't access your location automatically. Please enter it manually:</p>
+                            <div class="mb-3">
+                                <label for="userLatitude" class="form-label">Latitude:</label>
+                                <input type="number" class="form-control" id="userLatitude" placeholder="e.g., 28.6139" step="0.000001">
+                                <small class="form-text text-muted">Enter your current latitude</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="userLongitude" class="form-label">Longitude:</label>
+                                <input type="number" class="form-control" id="userLongitude" placeholder="e.g., 77.2090" step="0.000001">
+                                <small class="form-text text-muted">Enter your current longitude</small>
+                            </div>
+                            <div class="alert alert-info small">
+                                <strong>Don't know your coordinates?</strong><br>
+                                You can find them on <a href="https://maps.google.com" target="_blank">Google Maps</a> by right-clicking on your location.
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" onclick="processManualLocation()">Get Directions</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Remove existing modal if any
+        const existingModal = document.getElementById('locationModal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        // Add modal to body
+        document.body.insertAdjacentHTML('beforeend', modal);
+
+        // Show modal
+        const modal_element = document.getElementById('locationModal');
+        const bsModal = new bootstrap.Modal(modal_element);
+        bsModal.show();
+
+        // Clean up modal on hide
+        modal_element.addEventListener('hidden.bs.modal', function() {
+            modal_element.remove();
+        });
+    }
+
+    // Function to process manual location input
+    function processManualLocation() {
+        const userLat = parseFloat(document.getElementById('userLatitude').value);
+        const userLng = parseFloat(document.getElementById('userLongitude').value);
+
+        if (isNaN(userLat) || isNaN(userLng)) {
+            alert('⚠ Please enter valid latitude and longitude values.');
+            return;
+        }
+
+        if (userLat < -90 || userLat > 90) {
+            alert('⚠ Latitude must be between -90 and 90.');
+            return;
+        }
+
+        if (userLng < -180 || userLng > 180) {
+            alert('⚠ Longitude must be between -180 and 180.');
+            return;
+        }
+
+        // Close modal
+        bootstrap.Modal.getInstance(document.getElementById('locationModal')).hide();
+
+        // Open Google Maps directions
+        openGoogleMapsDirections(userLat, userLng);
     }
 </script>
 
