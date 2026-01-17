@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +25,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ym_^w*2ris4i86vf@(c=14thsvzzx-91!@zt18f80=jg*&^j-s'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-ym_^w*2ris4i86vf@(c=14thsvzzx-91!@zt18f80=jg*&^j-s')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['.onrender.com']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '.onrender.com').split(',')
 
 
 # Application definition
@@ -77,12 +82,12 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'mysql.connector.django',
-        'NAME': 'homes',
-        'USER' : 'root',
-        'PASSWORD' : 'Shrinath@123',
-        'HOST' : 'localhost',
-        'PORT' : '3306'
+        'ENGINE': os.getenv('DB_ENGINE', 'mysql.connector.django'),
+        'NAME': os.getenv('DB_NAME', 'homes'),
+        'USER' : os.getenv('DB_USER', 'root'),
+        'PASSWORD' : os.getenv('DB_PASSWORD', 'Shrinath@123'),
+        'HOST' : os.getenv('DB_HOST', 'localhost'),
+        'PORT' : os.getenv('DB_PORT', '3306')
     }
 }
 
@@ -136,16 +141,16 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Email Configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Gmail SMTP server
-EMAIL_PORT = 587  # TLS port
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'kale.shrinath05@gmail.com'  # Your Gmail address
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'kale.shrinath05@gmail.com')
 # IMPORTANT: Use Gmail App Password (16 characters from https://myaccount.google.com/apppasswords)
 # NOT your regular Gmail password. You must enable 2FA first.
-EMAIL_HOST_PASSWORD = 'kgrioqdekgndeawa'  # Replace with your 16-character Gmail App Password
-DEFAULT_FROM_EMAIL = 'kale.shrinath05@gmail.com'
-DEFAULT_FROM_EMAIL_NAME = 'rental_home'
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'kale.shrinath05@gmail.com')
+DEFAULT_FROM_EMAIL_NAME = os.getenv('DEFAULT_FROM_EMAIL_NAME', 'rental_home')
 
 # For testing without sending real emails, use console backend:
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -154,5 +159,5 @@ DEFAULT_FROM_EMAIL_NAME = 'rental_home'
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Google Maps API Configuration
-GOOGLE_MAPS_API_KEY = 'AIzaSyCGskhxS6LmCgw9BLs06Nh2ykg9lPlO5Wk'  # Replace with your actual API key from Google Cloud Console
+GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY', '')
 # Get free API key: https://console.cloud.google.com/

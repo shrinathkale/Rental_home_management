@@ -61,6 +61,7 @@ def property_list(request):
         'properties': properties,
         'room_types': Property.ROOM_TYPE_CHOICES,
         'availability': availability,
+        'GOOGLE_MAPS_API_KEY': settings.GOOGLE_MAPS_API_KEY,
     }
     return render(request, 'index.html', context)
 
