@@ -85,10 +85,10 @@ DATABASES = {
     'default': dj_database_url.parse(
         os.environ.get("DATABASE_URL"),
         conn_max_age=600,
-        ssl_require=True,
-        engine='django.db.backends.postgresql_psycopg3'
+        ssl_require=True
     )
 }
+
 
 
 # Password validation
