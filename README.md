@@ -1,0 +1,1 @@
+The Rental Home Management System is a web-based application designed to simplify the process of managing rental properties for both property owners and tenants. It provides a centralized platform to handle property listings, property searching, property tracking, rent tracking, and communication efficiently.
